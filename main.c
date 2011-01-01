@@ -52,8 +52,7 @@ const sric_conf_t sric_conf = {
 	.txen_port = &P3OUT,
 	.txen_mask = (1<<6),
 
-	/* Needs sric_commands to be defined
-	.rx_cmd = sric_client_rx, */
+	.rx_cmd = sric_client_rx,
 	.rx_resp = NULL,
 	.error = NULL,
 	.token_drv = &token_10f_drv,
@@ -86,8 +85,7 @@ void init(void) {
 	usci_init();
 
 	sric_init();
-	/* Needs sric_commands to be defined
-	sric_client_init(); */
+	sric_client_init();
 	token_10f_init();
 
 	eint();

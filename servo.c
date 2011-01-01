@@ -19,10 +19,26 @@
 #include <signal.h>
 #include "servo.h"
 
+/* Pulse width in us */
+#define MIN_PULSE 500
+#define MAX_PULSE 2500
+
+/* Tick width in us */
+#define TICK 0.5
+
+/* Min/Max number of ticks per pulse */
+#define MIN_TICK (MIN_PULSE/TICK)
+#define MAX_TICK (MAX_PULSE/TICK)
+
+#define TICK_PER_STEP ((MAX_TICK-MIN_TICK)/SERVO_STEPS)
+
+#define step_to_tick(step) (TICK_PER_STEP*step)
+#define tick_to_step(tick) (tick/TICK_PER_STEP)
+
 /* Current servo being controlled */
 static uint8_t curr_servo;
-/* Current positions of the servos */
-static uint8_t position[8];
+/* Current positions of the servos, stored as ticks */
+static uint16_t position[8];
 
 interrupt (TIMERB0_VECTOR) servo_timer_isr(void) {
 	/* Stop timer while we fiddle with it */
@@ -54,7 +70,7 @@ interrupt (TIMERB0_VECTOR) servo_timer_isr(void) {
 void servo_init(void) {
 	int i;
 	for (i = 0; i < 8; i++) {
-		position[i] = SERVO_MID;
+		servo_set(i, SERVO_MID);
 	}
 	curr_servo = 0;
 
@@ -74,8 +90,6 @@ void servo_init(void) {
 	TBCCTL0 |= OUTMOD_RESET  /* Set oupput mode to 'Reset' */
 	         | CCIE;         /* Enable interrupt on CCR0 */
 
-	/* TODO change 'position' to hold the number of ticks rather than
-	 * the 0-100 angle setting */
 	TBCCR0 = position[curr_servo];
 
 	/* and off we go */
@@ -87,15 +101,15 @@ void servo_set(uint8_t servo, uint8_t pos) {
 	if (servo > 7)
 		return;
 
-	if (pos > SERVO_MAX || pos < SERVO_MIN)
-		return;
+	if (pos > SERVO_STEPS)
+		pos = SERVO_STEPS;
 
-	position[servo] = pos;
+	position[servo] = step_to_tick(pos);
 }
 
 uint8_t servo_get(uint8_t servo) {
 	if (servo > 7)
 		return SERVO_ERR;
 
-	return position[servo];
+	return tick_to_step(position[servo]);
 }

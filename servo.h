@@ -2,12 +2,11 @@
 #define __SERVO_H
 #include <stdint.h>
 
-#define SERVO_MAX 100
-#define SERVO_MIN 0
+#define SERVO_STEPS 100
 /* Returned by 'servo_get' when 'servo' is out of range */
 #define SERVO_ERR 0xff
 
-#define SERVO_MID ((SERVO_MAX+SERVO_MIN)/2)
+#define SERVO_MID (SERVO_STEPS/2)
 
 void servo_init(void);
 

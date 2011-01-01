@@ -75,7 +75,7 @@ const token_10f_conf_t token_10f_conf = {
 };
 
 const sric_client_conf_t sric_client_conf = {
-	.devclass = SRIC_CLASS_MOTOR,
+	.devclass = SRIC_CLASS_SERVO,
 };
 
 void init(void) {

@@ -27,6 +27,7 @@
 
 #include "leds.h"
 #include "smps.h"
+#include "servo.h"
 
 const usci_t usci_config[1] = {
 	{
@@ -85,6 +86,7 @@ void init(void) {
 	BCSCTL1 = CALBC1_16MHZ;
 
 	smps_init();
+	servo_init();
 
 	pinint_init();
 	sched_init();

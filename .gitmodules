@@ -1,0 +1,6 @@
+[submodule "drivers"]
+	path = drivers
+	url = ../msp/drivers.git
+[submodule "libsric"]
+	path = libsric
+	url = ../msp/libsric.git

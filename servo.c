@@ -30,7 +30,7 @@
 #define MIN_TICK (MIN_PULSE/TICK)
 #define MAX_TICK (MAX_PULSE/TICK)
 
-#define TICK_PER_STEP ((MAX_TICK-MIN_TICK)/SERVO_STEPS)
+#define TICK_PER_STEP ((uint8_t)((MAX_TICK-MIN_TICK)/SERVO_STEPS))
 
 #define step_to_tick(step) (TICK_PER_STEP*step)
 #define tick_to_step(tick) (tick/TICK_PER_STEP)

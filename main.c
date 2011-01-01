@@ -25,6 +25,8 @@
 #include "libsric/sric-client.h"
 #include "libsric/token-10f.h"
 
+#include "leds.h"
+
 const usci_t usci_config[1] = {
 	{
 		.tx_gen_byte = sric_tx_cb,
@@ -75,6 +77,7 @@ const sric_client_conf_t sric_client_conf = {
 };
 
 void init(void) {
+	leds_init();
 
 	/* Set DCO to 16MHz */
 	DCOCTL = CALDCO_16MHZ;

@@ -28,6 +28,31 @@ void servo_init(void) {
 	for (i = 0; i < 8; i++) {
 		position[i] = SERVO_MID;
 	}
+	curr_servo = 0;
+
+	/* Setup pins */
+	P4SEL |= 1;              /* P4.0 is the timer/enable output */
+	P4OUT &= ~(7<<2);
+	P4DIR |= (7<<2);         /* P4.{2,3,4} are outputs */
+
+	/* Setup Timer B */
+	TBCTL |= TBCLR;          /* Clear timer settings */
+	TBCTL |= TBSSEL_SMCLK    /* Source clock from SMCLK (16MHz) */
+	       | ID_DIV8;        /* Divide SMCLK by 8 */
+
+	TBCCTL0 |= OUTMOD_OUT;   /* Set output mode to 'OUT bit value' */
+	TBCCTL0 |= OUT;          /* Set CCR0 ouput high, start of a pulse */
+
+	TBCCTL0 |= OUTMOD_RESET  /* Set oupput mode to 'Reset' */
+	         | CCIE;         /* Enable interrupt on CCR0 */
+
+	/* TODO change 'position' to hold the number of ticks rather than
+	 * the 0-100 angle setting */
+	TBCCR0 = position[curr_servo];
+
+	/* and off we go */
+	TBR = 0;
+	TBCTL |= MC_CONT;
 }
 
 void servo_set(uint8_t servo, uint8_t pos) {

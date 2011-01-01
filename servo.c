@@ -16,12 +16,40 @@
 */
 
 #include <io.h>
+#include <signal.h>
 #include "servo.h"
 
 /* Current servo being controlled */
 static uint8_t curr_servo;
 /* Current positions of the servos */
 static uint8_t position[8];
+
+interrupt (TIMERB0_VECTOR) servo_timer_isr(void) {
+	/* Stop timer while we fiddle with it */
+	TBCTL &= ~MC_3;
+
+	/* Move onto the next servo */
+	curr_servo++;
+	if (curr_servo == 8)
+		curr_servo = 0;
+
+	/* Set the decoder output to the correct servo */
+	P4OUT &= ~(7<<2);
+	P4OUT |= curr_servo << 2;
+
+	/* Enable the decoder, start of the pulse */
+	TBCCTL0 &= ~OUTMOD_7;
+	TBCCTL0 |= OUTMOD_OUT;
+	TBCCTL0 |= OUT;
+
+	/* Get everything setup to disable the decoder in a bit*/
+	TBCCTL0 |= OUTMOD_RESET;
+	TBCCR0 = position[curr_servo];
+
+	/* Start timer running again */
+	TBR = 0;
+	TBCTL |= MC_CONT;
+}
 
 void servo_init(void) {
 	int i;

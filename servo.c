@@ -76,6 +76,7 @@ void servo_init(void) {
 
 	/* Setup pins */
 	P4SEL |= 1;              /* P4.0 is the timer/enable output */
+	P4DIR |= 1;              /* P4.0 is an output */
 	P4OUT &= ~(7<<2);
 	P4DIR |= (7<<2);         /* P4.{2,3,4} are outputs */
 

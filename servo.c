@@ -24,7 +24,7 @@
 #define MAX_PULSE 2400
 
 /* Tick width in us */
-#define TICK 0.5
+#define TICK 0.125
 
 /* Min/Max number of ticks per pulse */
 #define MIN_TICK (MIN_PULSE/TICK)
@@ -83,7 +83,7 @@ void servo_init(void) {
 	/* Setup Timer B */
 	TBCTL |= TBCLR;          /* Clear timer settings */
 	TBCTL |= TBSSEL_SMCLK    /* Source clock from SMCLK (16MHz) */
-	       | ID_DIV8;        /* Divide SMCLK by 8 */
+	       | ID_DIV2;        /* Divide SMCLK by 2 */
 
 	TBCCTL0 |= OUTMOD_OUT;   /* Set output mode to 'OUT bit value' */
 	TBCCTL0 |= OUT;          /* Set CCR0 ouput high, start of a pulse */
@@ -98,7 +98,7 @@ void servo_init(void) {
 	TBCTL |= MC_CONT;
 }
 
-void servo_set(uint8_t servo, uint8_t pos) {
+void servo_set(uint8_t servo, uint16_t pos) {
 	if (servo > 7)
 		return;
 
@@ -108,7 +108,7 @@ void servo_set(uint8_t servo, uint8_t pos) {
 	position[servo] = step_to_tick(pos);
 }
 
-uint8_t servo_get(uint8_t servo) {
+uint16_t servo_get(uint8_t servo) {
 	if (servo > 7)
 		return SERVO_ERR;
 

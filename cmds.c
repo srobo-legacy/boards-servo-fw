@@ -21,13 +21,13 @@
 /* Set servo position
  * Arguments:
  *   - uint8_t: servo; 0 to 7
- *   - uint8_t: position; 0 to 100 */
+ *   - uint8_t: position; 0 to 400 */
 static uint8_t sric_set_servo(const sric_if_t *iface);
 /* Get current servo position
  * Arguments:
  *   - uint8_t: servo; 0 to 7
  * Returns:
- *   - uint8_t: position; 0 to 100 */
+ *   - uint8_t: position; 0 to 400 */
 static uint8_t sric_get_servo(const sric_if_t *iface);
 
 const sric_cmd_t sric_commands[] = {
@@ -39,13 +39,16 @@ const uint8_t sric_cmd_num = sizeof(sric_commands) / sizeof(const sric_cmd_t);
 
 static uint8_t sric_set_servo(const sric_if_t *iface) {
 	uint8_t servo = iface->rxbuf[SRIC_DATA + 1];
-	uint8_t pos = iface->rxbuf[SRIC_DATA + 2];
+	uint16_t pos = iface->rxbuf[SRIC_DATA + 2];
+	pos |= iface->rxbuf[SRIC_DATA + 3] << 8;
 	servo_set(servo, pos);
 	return 0;
 }
 
 static uint8_t sric_get_servo(const sric_if_t *iface) {
 	uint8_t servo = iface->rxbuf[SRIC_DATA + 1];
-	iface->txbuf[SRIC_DATA] = servo_get(servo);
+	uint16_t p = servo_get(servo);
+	iface->txbuf[SRIC_DATA] = p & 0xff;
+	iface->txbuf[SRIC_DATA] = (p>>8) & 0xff;
 	return 1;
 }

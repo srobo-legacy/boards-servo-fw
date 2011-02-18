@@ -20,8 +20,8 @@
 #include "servo.h"
 
 /* Pulse width in us */
-#define MIN_PULSE 500
-#define MAX_PULSE 2500
+#define MIN_PULSE 600
+#define MAX_PULSE 2400
 
 /* Tick width in us */
 #define TICK 0.5
@@ -32,8 +32,8 @@
 
 #define TICK_PER_STEP ((uint8_t)((MAX_TICK-MIN_TICK)/SERVO_STEPS))
 
-#define step_to_tick(step) (TICK_PER_STEP*step)
-#define tick_to_step(tick) (tick/TICK_PER_STEP)
+#define step_to_tick(step) (MIN_TICK+(TICK_PER_STEP*step))
+#define tick_to_step(tick) ((tick-MIN_TICK)/TICK_PER_STEP)
 
 /* Current servo being controlled */
 static uint8_t curr_servo;

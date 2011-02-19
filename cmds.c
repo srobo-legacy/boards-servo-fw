@@ -17,6 +17,7 @@
 
 #include "cmds.h"
 #include "servo.h"
+#include "flash430/sric-flash.h"
 
 /* Set servo position
  * Arguments:
@@ -32,7 +33,12 @@ static uint8_t sric_get_servo(const sric_if_t *iface);
 
 const sric_cmd_t sric_commands[] = {
 	{sric_set_servo},
-	{sric_get_servo}
+	{sric_get_servo},
+	{sric_flashr_fw_ver},
+	{sric_flashw_fw_chunk},
+	{sric_flashr_fw_next},
+	{sric_flashr_crc},
+	{sric_flashw_confirm},
 };
 
 const uint8_t sric_cmd_num = sizeof(sric_commands) / sizeof(const sric_cmd_t);

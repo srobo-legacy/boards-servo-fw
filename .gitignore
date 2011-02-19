@@ -1,3 +1,4 @@
-servo
+servo-top
+servo-bottom
 *.o
 depend

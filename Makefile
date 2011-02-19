@@ -7,23 +7,30 @@ CFLAGS += -include `pwd`/config.h
 LDFLAGS :=
 
 O_FILES = main.o smps.o servo.o cmds.o
-SUBDIRS = drivers libsric
+SUBDIRS = drivers libsric flash430
 
 LDFLAGS += -Ldrivers -ldrivers
 LDFLAGS += -Llibsric -lsric
+LDFLAGS += -Lflash430 -lflash430
 
-all: servo
+all: servo-bottom servo-top
 
 include depend
 
-servo: ${O_FILES} ${SUBDIRS}
-	${CC} -o $@ ${O_FILES} ${CFLAGS} ${LDFLAGS}
+servo-bottom: ${O_FILES} ${SUBDIRS}
+	${CC} -o $@ ${O_FILES} ${CFLAGS} ${LDFLAGS} -Wl,-T,flash430/lkr/${ARCH}-bottom.x
+
+servo-top: ${O_FILES} ${SUBDIRS}
+	${CC} -o $@ ${O_FILES} ${CFLAGS} ${LDFLAGS} -Wl,-T,flash430/lkr/${ARCH}-top.x
 
 drivers:
 	$(MAKE) -C $@ CC=${CC} ARCH=${ARCH} CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}"
 
 libsric:
 	$(MAKE) -C $@ CC=${CC} ARCH=${ARCH} CFLAGS="${CFLAGS} -I`pwd`" LDFLAGS="${LDFLAGS}"
+
+flash430:
+	$(MAKE) -C $@ CC=${CC} ARCH=${ARCH} CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}"
 
 depend: *.c
 	rm -f depend
@@ -33,11 +40,11 @@ depend: *.c
 
 .PHONY: clean ${SUBDIRS} flash
 
-flash: servo
+flash: servo-bottom
 	mspdebug uif -d ${UIF_TTY} "prog $<"
 
 clean:
-	-rm -f servo depend *.o
+	-rm -f servo-{bottom,top} depend *.o
 	for d in ${SUBDIRS} ; do\
 		${MAKE} -C $$d clean ; \
 	done ;

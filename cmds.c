@@ -17,6 +17,7 @@
 
 #include "cmds.h"
 #include "servo.h"
+#include "smps.h"
 #include "flash430/sric-flash.h"
 
 /* Set servo position
@@ -31,6 +32,11 @@ static uint8_t sric_set_servo(const sric_if_t *iface);
  *   - uint16_t: position; 0 to 400 */
 static uint8_t sric_get_servo(const sric_if_t *iface);
 
+/* Turn the SMPS on/off
+ * Arguments:
+ *   - uint8_t: enable; 0 or 1 */
+static uint8_t sric_smps(const sric_if_t *iface);
+
 const sric_cmd_t sric_commands[] = {
 	{sric_set_servo},
 	{sric_get_servo},
@@ -39,6 +45,7 @@ const sric_cmd_t sric_commands[] = {
 	{sric_flashr_fw_next},
 	{sric_flashr_crc},
 	{sric_flashw_confirm},
+	{sric_smps},
 };
 
 const uint8_t sric_cmd_num = sizeof(sric_commands) / sizeof(const sric_cmd_t);
@@ -57,4 +64,12 @@ static uint8_t sric_get_servo(const sric_if_t *iface) {
 	iface->txbuf[SRIC_DATA] = p & 0xff;
 	iface->txbuf[SRIC_DATA] = (p>>8) & 0xff;
 	return 2;
+}
+
+static uint8_t sric_smps(const sric_if_t *iface) {
+	if (iface->rxbuf[SRIC_DATA+1])
+		smps_en();
+	else
+		smps_dis();
+	return 0;
 }

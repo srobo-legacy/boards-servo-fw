@@ -22,13 +22,13 @@
 /* Set servo position
  * Arguments:
  *   - uint8_t: servo; 0 to 7
- *   - uint8_t: position; 0 to 400 */
+ *   - uint16_t: position; 0 to 400 */
 static uint8_t sric_set_servo(const sric_if_t *iface);
 /* Get current servo position
  * Arguments:
  *   - uint8_t: servo; 0 to 7
  * Returns:
- *   - uint8_t: position; 0 to 400 */
+ *   - uint16_t: position; 0 to 400 */
 static uint8_t sric_get_servo(const sric_if_t *iface);
 
 const sric_cmd_t sric_commands[] = {

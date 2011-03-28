@@ -62,7 +62,7 @@ static uint8_t sric_get_servo(const sric_if_t *iface) {
 	uint8_t servo = iface->rxbuf[SRIC_DATA + 1];
 	uint16_t p = servo_get(servo);
 	iface->txbuf[SRIC_DATA] = p & 0xff;
-	iface->txbuf[SRIC_DATA] = (p>>8) & 0xff;
+	iface->txbuf[SRIC_DATA + 1] = (p>>8) & 0xff;
 	return 2;
 }
 

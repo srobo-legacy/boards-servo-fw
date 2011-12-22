@@ -17,6 +17,7 @@
 
 #include <io.h>
 #include <signal.h>
+#include <stdbool.h>
 #include "servo.h"
 
 /* Pulse width in us */
@@ -39,6 +40,24 @@
 static uint8_t curr_servo;
 /* Current positions of the servos, stored as ticks */
 static uint16_t position[8];
+/* Whether each output is enabled or disabled */
+static bool enabled[8];
+
+/* Combine the value from position[n] and enabled[n]
+   so that the timer waits MIN_TICKs between these
+ */
+#define servo_get_ticks(n) ( enabled[n] ? position[n] : MIN_TICK )
+
+/* Disable the servo output -- take control of it away from the timer */
+#define output_disable() do { \
+	P4OUT &= ~1;	      \
+	P4SEL &= ~1;	      \
+	} while (0)
+
+/* Enable the servo output -- give control of the the output to the timer */
+#define output_enable() do { \
+	P4SEL |= 1;	     \
+	} while (0)
 
 interrupt (TIMERB0_VECTOR) servo_timer_isr(void) {
 	/* Stop timer while we fiddle with it */
@@ -53,6 +72,13 @@ interrupt (TIMERB0_VECTOR) servo_timer_isr(void) {
 	P4OUT &= ~(7<<2);
 	P4OUT |= curr_servo << 2;
 
+	if( enabled[curr_servo] )
+		/* Give the timer control of the output pin */
+		output_enable();
+	else
+		/* Keep the output pin low */
+		output_disable();
+
 	/* Enable the decoder, start of the pulse */
 	TBCCTL0 &= ~OUTMOD_7;
 	TBCCTL0 |= OUTMOD_OUT;
@@ -60,7 +86,7 @@ interrupt (TIMERB0_VECTOR) servo_timer_isr(void) {
 
 	/* Get everything setup to disable the decoder in a bit*/
 	TBCCTL0 |= OUTMOD_RESET;
-	TBCCR0 = position[curr_servo];
+	TBCCR0 = servo_get_ticks(curr_servo);
 
 	/* Start timer running again */
 	TBR = 0;
@@ -68,15 +94,21 @@ interrupt (TIMERB0_VECTOR) servo_timer_isr(void) {
 }
 
 void servo_init(void) {
-	int i;
-	for (i = 0; i < 8; i++) {
-		servo_set(i, SERVO_MID);
+	uint8_t i;
+
+	/* Disable all servos to start with */
+	for( i=0; i<8; i++ ) {
+		enabled[i] = false;
 	}
+
 	curr_servo = 0;
 
-	/* Setup pins */
-	P4SEL |= 1;              /* P4.0 is the timer/enable output */
+	/* Configure the timer/servo output */
 	P4DIR |= 1;              /* P4.0 is an output */
+	/* Start with it disabled as no servos are configured yet */
+	output_disable();
+
+	/* Setup the output selection pins */
 	P4OUT &= ~(7<<2);
 	P4DIR |= (7<<2);         /* P4.{2,3,4} are outputs */
 
@@ -91,7 +123,7 @@ void servo_init(void) {
 	TBCCTL0 |= OUTMOD_RESET  /* Set oupput mode to 'Reset' */
 	         | CCIE;         /* Enable interrupt on CCR0 */
 
-	TBCCR0 = position[curr_servo];
+	TBCCR0 = servo_get_ticks(curr_servo);
 
 	/* and off we go */
 	TBR = 0;
@@ -106,6 +138,7 @@ void servo_set(uint8_t servo, uint16_t pos) {
 		pos = SERVO_STEPS;
 
 	position[servo] = step_to_tick(pos);
+	enabled[servo] = true;
 }
 
 uint16_t servo_get(uint8_t servo) {

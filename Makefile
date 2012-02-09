@@ -2,6 +2,8 @@ ARCH = msp430x2274
 CC := msp430-gcc
 UIF_TTY = /dev/ttyUSB0
 
+FW_VER = 1
+
 CFLAGS := -g -mmcu=${ARCH} -Wall -O3 -std=gnu99
 CFLAGS += -include `pwd`/config.h
 LDFLAGS :=
@@ -30,7 +32,7 @@ libsric:
 	$(MAKE) -C $@ CC=${CC} ARCH=${ARCH} CFLAGS="${CFLAGS} -I`pwd`" LDFLAGS="${LDFLAGS}"
 
 flash430:
-	$(MAKE) -C $@ CC=${CC} ARCH=${ARCH} CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}"
+	$(MAKE) -C $@ CC=${CC} ARCH=${ARCH} CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}" FW_VER="${FW_VER}"
 
 depend: *.c
 	rm -f depend

@@ -1,4 +1,4 @@
-ARCH = msp430x2274
+ARCH = msp430x2254
 CC := msp430-gcc
 UIF_TTY = /dev/ttyUSB0
 

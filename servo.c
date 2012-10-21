@@ -25,11 +25,12 @@
 #define MAX_PULSE 2400
 
 /* Tick width in us */
-#define TICK 0.125
+/* This is actually the inverse of the tick width (tick width = 0.125us. */
+#define TICK 8
 
 /* Min/Max number of ticks per pulse */
-#define MIN_TICK (MIN_PULSE/TICK)
-#define MAX_TICK (MAX_PULSE/TICK)
+#define MIN_TICK (MIN_PULSE*TICK)
+#define MAX_TICK (MAX_PULSE*TICK)
 
 #define TICK_PER_STEP ((uint8_t)((MAX_TICK-MIN_TICK)/SERVO_STEPS))
 
